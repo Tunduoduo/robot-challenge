@@ -2,7 +2,12 @@ import com.robot.Orientation;
 import com.robot.Tabletop;
 import com.robot.ToyRobot;
 import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
 /**
  *
  * 1. Test the three examples providing by this task.
@@ -12,7 +17,19 @@ import org.junit.Test;
  * @author: Fiona Tian
  * @date: 07/11/2021
  */
+@RunWith(JUnit4.class)
 public class RobotTest extends TestCase {
+
+    private Tabletop tabletop;
+    private ToyRobot robot;
+
+    @Before
+    public void init(){
+
+        tabletop = new Tabletop(5,5);
+        robot = new ToyRobot();
+
+    }
 
     /**
      * Example Input and Output:
@@ -26,8 +43,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testExample() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,NORTH MOVE REPORT ", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -39,8 +54,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testExample2() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,NORTH LEFT REPORT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -52,8 +65,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testExample3() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 1,2,EAST MOVE MOVE LEFT MOVE REPORT ", robot);
 
         assertEquals(3, robot.getPositionX());
@@ -67,8 +78,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testEmptyCommand() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
 
         tabletop.execute(" ", robot);
 
@@ -81,10 +90,8 @@ public class RobotTest extends TestCase {
      * Test invalid command
      * */
     @Test
-    public void testInvalidCommand() throws Exception{
+    public void testInvalidCommand(){
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[4];
         params[0] = "1,2,North";
         params[1] = "skjdf ksjf";
@@ -93,16 +100,15 @@ public class RobotTest extends TestCase {
 
         for(String param : params){
 
-            try{
-                tabletop.execute(param, robot);
-            }catch (Exception e){
-                System.err.println(e.getMessage());
-                assertEquals(0, robot.getPositionX());
-                assertEquals(0, robot.getPositionY());
-                assertNull(robot.getOrientation());
-                assertEquals("Invalid command: the command only " +
-                        "contains 'PLACE X,Y,F MOVE LEFT RIGHT REPORT'.", e.getMessage());
-            }
+            Exception e = Assert.assertThrows(Exception.class, () -> tabletop.execute(param, robot));
+
+            System.err.println(e.getMessage());
+
+            assertEquals(0, robot.getPositionX());
+            assertEquals(0, robot.getPositionY());
+            assertNull(robot.getOrientation());
+            assertEquals("Invalid command: the command only " +
+                    "contains 'PLACE X,Y,F MOVE LEFT RIGHT REPORT'.", e.getMessage());
         }
 
     }
@@ -113,8 +119,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testFirstCommand(){
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[4];
         params[0] = "MOVE";
         params[1] = " LEFT";
@@ -123,15 +127,15 @@ public class RobotTest extends TestCase {
 
         for(String param : params){
 
-            try{
-                tabletop.execute(param, robot);
-            }catch (Exception e){
-                System.err.println(e.getMessage());
-                assertEquals(0, robot.getPositionX());
-                assertEquals(0, robot.getPositionY());
-                assertNull(robot.getOrientation());
-                assertEquals("Invalid command: the first command should be 'PLACE'.", e.getMessage());
-            }
+            Exception e = Assert.assertThrows(Exception.class, () -> tabletop.execute(param, robot));
+
+            System.err.println(e.getMessage());
+
+            assertEquals(0, robot.getPositionX());
+            assertEquals(0, robot.getPositionY());
+            assertNull(robot.getOrientation());
+            assertEquals("Invalid command: the first command should be 'PLACE'.", e.getMessage());
+
         }
     }
 
@@ -142,8 +146,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testPlaceOrientation() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[4];
         params[0] = "PLACE 1,2,NORTH";
         params[1] = "PLACE 1,2,EAST  ";
@@ -164,8 +166,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testTwoPlaceCommands() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[5];
         params[0] = "PLACE 1,2,NORTH PLACE 2,3,EAST";
         params[1] = "PLACE 1, 2,NORTH REPORT PLACE 2,3,EAST ";
@@ -187,12 +187,16 @@ public class RobotTest extends TestCase {
     @Test
     public void testInvalidPosition(){
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
-        try{
-            tabletop.execute("PLACE s,0,NORTH REPORT", robot);
-        }catch (Exception e){
+        String[] params = new String[3];
+        params[0] = "PLACE s,0,NORTH REPORT";
+        params[1] = "PLACE 0,s,NORTH REPORT";
+        params[2] = "PLACE s,s,NORTH REPORT";
+        for(String param : params) {
+
+            Exception e = Assert.assertThrows(Exception.class, () -> tabletop.execute(param, robot));
+
             System.err.println(e.getMessage());
+
             assertEquals(0, robot.getPositionX());
             assertEquals(0, robot.getPositionY());
             assertNull(robot.getOrientation());
@@ -204,21 +208,20 @@ public class RobotTest extends TestCase {
     @Test
     public void testPositionWithoutXYF(){
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[2];
         params[0] = "PLACE 2,NORTH";
         params[1] = "PLACE 1,2";
         for(String param : params) {
-            try {
-                tabletop.execute(param, robot);
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                assertEquals(0, robot.getPositionX());
-                assertEquals(0, robot.getPositionY());
-                assertNull(robot.getOrientation());
-                assertEquals("The command PLACE is invalid! It should be like 'PLACE X,Y,F'.", e.getMessage());
-            }
+
+            Exception e = Assert.assertThrows(Exception.class, () -> tabletop.execute(param, robot));
+
+            System.err.println(e.getMessage());
+
+            assertEquals(0, robot.getPositionX());
+            assertEquals(0, robot.getPositionY());
+            assertNull(robot.getOrientation());
+            assertEquals("The command PLACE is invalid! It should be like 'PLACE X,Y,F'.", e.getMessage());
+
         }
 
     }
@@ -226,8 +229,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testPositionWithSpace() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[4];
         params[0] = "PLACE 1 ,2,NORTH";
         params[1] = "PLACE 1, 2,NORTH";
@@ -249,8 +250,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testInvalidPositionXY(){
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[6];
         params[0] = "PLACE -1,2,NORTH";
         params[1] = "PLACE 5,2,NORTH";
@@ -260,16 +259,15 @@ public class RobotTest extends TestCase {
         params[5] = "PLACE 1,7,NORTH";
 
         for(String param : params){
-            try{
-                tabletop.execute(param, robot);
-            }catch (Exception e){
-                System.err.println(e.getMessage());
-                assertEquals(0, robot.getPositionX());
-                assertEquals(0, robot.getPositionY());
-                assertNull(robot.getOrientation());
-                assertEquals("The position is invalid.", e.getMessage());
-            }
 
+            Exception e = Assert.assertThrows(Exception.class, () -> tabletop.execute(param, robot));
+
+            System.err.println(e.getMessage());
+
+            assertEquals(0, robot.getPositionX());
+            assertEquals(0, robot.getPositionY());
+            assertNull(robot.getOrientation());
+            assertEquals("The position is invalid.", e.getMessage());
         }
 
     }
@@ -277,17 +275,14 @@ public class RobotTest extends TestCase {
     @Test
     public void testInvalidOrientation(){
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
-        try{
-            tabletop.execute("PLACE 1,2,E", robot);
-        }catch (Exception e){
-            System.err.println(e.getMessage());
-            assertEquals(0, robot.getPositionX());
-            assertEquals(0, robot.getPositionY());
-            assertNull(robot.getOrientation());
-            assertEquals("The orientation is invalid.", e.getMessage());
-        }
+        Exception e = Assert.assertThrows(Exception.class, () -> tabletop.execute("PLACE 1,2,E", robot));
+
+        System.err.println(e.getMessage());
+
+        assertEquals(0, robot.getPositionX());
+        assertEquals(0, robot.getPositionY());
+        assertNull(robot.getOrientation());
+        assertEquals("The orientation is invalid.", e.getMessage());
     }
 
 
@@ -297,8 +292,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testMove() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,NORTH MOVE", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -308,28 +301,8 @@ public class RobotTest extends TestCase {
     }
 
     @Test
-    public void testInvalidMove(){
-
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
-
-        try{
-            tabletop.execute("PLACE 0,0,SOUTH MOVE", robot);
-        }catch (Exception e){
-            System.err.println(e.getMessage());
-            assertEquals(0, robot.getPositionX());
-            assertEquals(0, robot.getPositionY());
-            assertEquals(Orientation.SOUTH.name(), robot.getOrientation());
-            assertEquals("The position is invalid.", e.getMessage());
-        }
-
-    }
-
-    @Test
     public void testMoveOutOfRange(){
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[8];
         params[0] = "PLACE 0,0,SOUTH MOVE";
         params[1] = "PLACE 0,0,WEST MOVE";
@@ -342,16 +315,15 @@ public class RobotTest extends TestCase {
 
         for(String param : params){
 
-            try{
-                tabletop.execute(param, robot);
+            Exception e = Assert.assertThrows(Exception.class, () -> tabletop.execute(param, robot));
 
-            }catch (Exception e){
-                System.err.println(e.getMessage());
-                assertEquals(Integer.parseInt(param.substring(6,9).split(",")[0]), robot.getPositionX());
-                assertEquals(Integer.parseInt(param.substring(6,9).split(",")[1]), robot.getPositionY());
-                assertEquals(param.replace(" MOVE","").substring(10), robot.getOrientation());
-                assertEquals("The position is invalid.", e.getMessage());
-            }
+            System.err.println(e.getMessage());
+
+            assertEquals("The position is invalid.", e.getMessage());
+            assertEquals(Integer.parseInt(param.substring(6,9).split(",")[0]), robot.getPositionX());
+            assertEquals(Integer.parseInt(param.substring(6,9).split(",")[1]), robot.getPositionY());
+            assertEquals(param.replace(" MOVE","").substring(10), robot.getOrientation());
+
         }
 
     }
@@ -362,8 +334,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testNorthLeft() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,NORTH LEFT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -374,8 +344,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testEastLeft() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,EAST LEFT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -386,8 +354,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testSouthLeft() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,SOUTH LEFT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -399,8 +365,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testWestLeft() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,WEST LEFT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -416,8 +380,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testNorthRight() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,NORTH RIGHT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -429,8 +391,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testEastRight() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,EAST RIGHT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -442,8 +402,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testSouthRight() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,SOUTH RIGHT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -455,8 +413,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testWestRight() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         tabletop.execute("PLACE 0,0,WEST RIGHT", robot);
 
         assertEquals(0, robot.getPositionX());
@@ -471,8 +427,6 @@ public class RobotTest extends TestCase {
     @Test
     public void testReport() throws Exception{
 
-        Tabletop tabletop = new Tabletop(5,5);
-        ToyRobot robot = new ToyRobot();
         String[] params = new String[4];
         params[0] = "PLACE 1,2,NORTH REPORT MOVE MOVE";
         params[1] = "PLACE 1,2,NORTH REPORT MOVE REPORT MOVE";

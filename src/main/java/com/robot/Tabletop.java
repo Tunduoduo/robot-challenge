@@ -23,7 +23,7 @@ public class Tabletop {
      * 2. The first command is PLACE.
      */
 
-    public Command validCommand(String command, ToyRobot robot) throws Exception{
+    private Command validCommand(String command, ToyRobot robot) throws Exception{
 
         try{
             Command c = Command.valueOf(command.trim());
@@ -47,7 +47,7 @@ public class Tabletop {
      *
      * and invalidate the parameters
      */
-    public String validPlace(String commandStr, ToyRobot robot) throws Exception {
+    private String validPlace(String commandStr, ToyRobot robot) throws Exception {
 
         int posX;
         int posY;
@@ -90,7 +90,7 @@ public class Tabletop {
      * Validate the position to move.
      *
      */
-    public void validPosition(int posX, int posY, ToyRobot robot) throws Exception{
+    private void validPosition(int posX, int posY, ToyRobot robot) throws Exception{
 
         if(posX>=sizeX || posX<0 || posY>=sizeY || posY<0){
             throw new Exception("The position is invalid.");
@@ -103,7 +103,7 @@ public class Tabletop {
      * Validate the position to place.
      *
      */
-    public void validPosition(int posX, int posY, String orientation, ToyRobot robot) throws Exception{
+    private void validPosition(int posX, int posY, String orientation, ToyRobot robot) throws Exception{
 
         if(posX>=sizeX || posX<0 || posY>=sizeY || posY<0){
             throw new Exception("The position is invalid.");
